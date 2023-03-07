@@ -3,13 +3,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Http\Requests\TestPostRequest;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\TaskRegisterPostRequest;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Task as TaskModel;
 
-class TestController extends Controller
+class TaskController extends Controller
 {
     /**
      * タスク一覧ページ を表示する
@@ -18,14 +16,31 @@ class TestController extends Controller
      */
     public function list()
     {
-        return view('/task/list');
+        // 一覧の取得
+        $list = TaskModel::where('user_id', Auth::id())
+                         ->orderBy('priority', 'DESC')
+                         ->orderBy('period')
+                         ->orderBy('created_at')
+                         ->get();
+/*
+$sql = TaskModel::where('user_id', Auth::id())
+                 ->orderBy('priority', 'DESC')
+                 ->orderBy('period')
+                 ->orderBy('created_at')
+                 ->toSql();
+//echo "<pre>\n"; var_dump($sql, $list); exit;
+var_dump($sql);
+*/
+        //
+        return view('task.list', ['list' => $list]);
     }
+
     /**
      * タスクの新規登録
      */
     public function register(TaskRegisterPostRequest $request)
     {
-       // validate済みのデータの取得
+        // validate済みのデータの取得
         $datum = $request->validated();
         //
         //$user = Auth::user();
@@ -38,17 +53,16 @@ class TestController extends Controller
         // テーブルへのINSERT
         try {
             $r = TaskModel::create($datum);
-var_dump($r); exit;
         } catch(\Throwable $e) {
             // XXX 本当はログに書く等の処理をする。今回は一端「出力する」だけ
             echo $e->getMessage();
             exit;
         }
+
         // タスク登録成功
         $request->session()->flash('front.task_register_success', true);
 
         //
         return redirect('/task/list');
     }
-
 }
