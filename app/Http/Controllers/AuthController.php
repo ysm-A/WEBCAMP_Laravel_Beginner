@@ -25,7 +25,7 @@ class AuthController extends Controller
      */
     public function login(LoginPostRequest $request)
     {
-        // validate済
+        // validat済
 
         // データの取得
         $datum = $request->validated();
@@ -48,7 +48,7 @@ class AuthController extends Controller
      * ログアウト処理
      * 
      */
-   public function logout(Request $request)
+    public function logout(Request $request)
     {
         Auth::logout();
         $request->session()->regenerateToken();  // CSRFトークンの再生成
